@@ -6,5 +6,7 @@ To use the HTML Minification for Razor, you have to change your Web.config to re
   </system.web.webPages.razor>
 </configuration>
 
+There is also a NuGet package to setup the Minifier automatically in your applications.
+
 You can find more details in http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/
 

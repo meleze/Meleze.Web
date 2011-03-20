@@ -47,9 +47,9 @@
     <Compile Include="Mvc\LocalRequestFilterAttribute.cs" />
     <Compile Include="Mvc\TimestampedCacheAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Razor\MinimizedHtmlCodeGenerator.cs" />
-    <Compile Include="Razor\MinimizedHtmlMvcWebPageRazorHost.cs" />
-    <Compile Include="Razor\MinimizedHtmlWebRazorHostFactory.cs" />
+    <Compile Include="Razor\MinifyHtmlCodeGenerator.cs" />
+    <Compile Include="Razor\MinifyHtmlMvcWebPageRazorHost.cs" />
+    <Compile Include="Razor\MinifyHtmlWebRazorHostFactory.cs" />
     <Compile Include="Sprites\SpriteGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

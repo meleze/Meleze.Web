@@ -28,3 +28,4 @@ obj/
 [Tt]est[Rr]esult*
 tmp*/
 *.swp
+Meleze.Web.*.nupkg

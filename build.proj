@@ -74,12 +74,11 @@
     <MakeDir Directories="tmp/content" />
     <MakeDir Directories="tmp/content/Views" />
 
-    <Copy SourceFiles="Meleze.nuspec" DestinationFolder="tmp" />
+    <Copy SourceFiles="cestdumeleze.nuspec" DestinationFolder="tmp" />
     <!--<Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content/Views" />-->
     <Copy SourceFiles="Meleze.Web/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
 
-    <!--<Exec Command="&quot;C:\Projects\Tools\dotless\dotless.Compiler.exe&quot; -m tmp\Application\Content\mail.less tmp\Application\Content\mail.css" />-->
-    <Exec Command="&quot;C:\Projects\Tools\NuGet.exe&quot; pack tmp\Meleze.nuspec" />
+    <Exec Command="&quot;C:\Projects\Tools\NuGet.exe&quot; pack tmp\cestdumeleze.nuspec" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="Dlls;Package">
