@@ -1,0 +1,87 @@
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration>Release</Configuration>
+    <!--<Configuration>Debug</Configuration>-->
+    <Platform>AnyCPU</Platform>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="Clean" DependsOnTargets="CleanProjects">
+  </Target>
+
+  <Target Name="CleanProjects">
+    <ItemGroup>
+      <CleanFiles Include="**/*.dll" />
+      <CleanFiles Include="**/*.pdb" />
+      <CleanFiles Include="**/*.exe" />
+      <CleanFiles Include="**/*.msi" />
+      <CleanFiles Include="**/*.*~" />
+      <CleanFiles Include="**/*.db" />
+      <CleanFiles Include="**/*.log" />
+      <CleanFiles Include="**/*.aux" />
+      <CleanFiles Include="**/*.pdf" />
+      <CleanFiles Include="**/*.out" />
+      <CleanFiles Include="**/*.toc" />
+      <CleanFiles Include="**/*.1" />
+      <CleanFiles Include="**/*.2" />
+      <CleanFiles Include="**/*.3" />
+      <CleanFiles Include="**/*.4" />
+      <CleanFiles Include="**/*.mdf" />
+      <CleanFiles Include="**/*.ldf" />
+      <CleanFiles Include="**/*.ncb" />
+      <CleanFiles Include="**/*.dbg" />
+      <CleanFiles Include="**/*.xbap" />
+      <CleanFiles Include="**/*.nupkg" />
+      <CleanDirectories Include="*/*.csproj" />
+    </ItemGroup>
+
+    <MSBuild Projects="Meleze.sln" Targets="Clean" Properties="Configuration=Release;Platform=Any CPU" />
+    <MSBuild Projects="Meleze.sln" Targets="Clean" Properties="Configuration=Debug;Platform=Any CPU" />
+
+    <Delete Files="@(CleanFiles)" TreatErrorsAsWarnings="true" />
+
+    <RemoveDir Directories="%(CleanDirectories.rootdir)%(CleanDirectories.directory)bin" />
+    <RemoveDir Directories="%(CleanDirectories.rootdir)%(CleanDirectories.directory)obj" />
+
+    <RemoveDir Directories="TestResults" />
+    <RemoveDir Directories="tmp" />
+  </Target>
+
+  <Target Name="Backup" DependsOnTargets="Clean">
+    <Exec Command="&quot;C:\Program Files\7-Zip\7z.exe&quot; a -pMeleze -mx9 -r ..\Meleze.7z *.* -x!*.swp -xr!.git\*" />
+  </Target>
+
+  <Target Name="FullBackup" DependsOnTargets="Clean">
+    <Exec Command="&quot;C:\Program Files\7-Zip\7z.exe&quot; a -pMeleze -mx9 -r ..\Meleze.7z *.* -x!*.swp" />
+  </Target>
+
+  <Target Name="Dlls">
+    <MSBuild Projects="Meleze.Web/Meleze.Web.csproj" Targets="Build" Properties="Configuration=$(Configuration);Platform=$(Platform);DefineConstants=$(DefineConstants)" />
+  </Target>
+  
+  <Target Name="Package">
+    <RemoveDir Directories="tmp" />
+    <MakeDir Directories="tmp" />
+    <MakeDir Directories="tmp/lib" />
+    <MakeDir Directories="tmp/lib/NET40" />
+    <MakeDir Directories="tmp/content" />
+    <MakeDir Directories="tmp/content/Views" />
+
+    <Copy SourceFiles="Meleze.nuspec" DestinationFolder="tmp" />
+    <!--<Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content/Views" />-->
+    <Copy SourceFiles="Meleze.Web/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
+
+    <!--<Exec Command="&quot;C:\Projects\Tools\dotless\dotless.Compiler.exe&quot; -m tmp\Application\Content\mail.less tmp\Application\Content\mail.css" />-->
+    <Exec Command="&quot;C:\Projects\Tools\NuGet.exe&quot; pack tmp\Meleze.nuspec" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="Dlls;Package">
+  </Target>
+</Project>
