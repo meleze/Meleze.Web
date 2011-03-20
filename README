@@ -1,12 +1,10 @@
 To use the HTML Minification for Razor, you have to change your Web.config to replace the default ASP.NET MVC factory by the Meleze's one:
 
-<pre>
 <configuration>
   <system.web.webPages.razor>
     <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory,Meleze.Web.Razor" />
   </system.web.webPages.razor>
 </configuration>
-</pre>
 
-You can find more details in <a href="http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/">Minifying HTML With ASP.NET MVC And Razor</a>.
+You can find more details in http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/
 
