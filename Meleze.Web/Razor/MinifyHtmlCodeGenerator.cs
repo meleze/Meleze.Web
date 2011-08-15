@@ -1,44 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using System.Web.Mvc.Razor;
-using System.Web.Razor;
-using System.Web.Razor.Parser.SyntaxTree;
 
 namespace Meleze.Web.Razor
 {
     /// <summary>
     /// MinifyHtmlCodeGenerator performs the HTML minification at compile time.
     /// </summary>
-    public sealed class MinifyHtmlCodeGenerator : MvcCSharpRazorCodeGenerator
+    internal static class MinifyHtmlCodeGenerator
     {
-        public MinifyHtmlCodeGenerator(string className, string rootNamespaceName, string sourceFileName, RazorEngineHost host)
-            : base(className, rootNamespaceName, sourceFileName, host)
-        {
-        }
-
-        public override void VisitSpan(Span span)
-        {
-            // We only minify the static text
-            var markupSpan = span as MarkupSpan;
-            if (markupSpan == null)
-            {
-                base.VisitSpan(span);
-                return;
-            }
-
-            var content = markupSpan.Content;
-
-            content = Minify(content);
-
-            span.Content = content;
-            base.VisitSpan(span);
-        }
-
         private static char[] _whiteSpaceSepartors = new char[] { '\n', '\r' };
         private static string[] _commentsMarkers = new string[] { "{", "}", "function", "var", "[if" };
 
-        private string Minify(string content)
+        public static string Minify(string content)
         {
             if (string.IsNullOrWhiteSpace(content))
             {

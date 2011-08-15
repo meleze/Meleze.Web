@@ -15,9 +15,16 @@ namespace Meleze.Web.Razor
 
         public override RazorCodeGenerator DecorateCodeGenerator(RazorCodeGenerator incomingCodeGenerator)
         {
-            if (incomingCodeGenerator is CSharpRazorCodeGenerator)
+            if (!incomingCodeGenerator.Host.DesignTimeMode)
             {
-                return new MinifyHtmlCodeGenerator(incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
+                if (incomingCodeGenerator is CSharpRazorCodeGenerator)
+                {
+                    return new MinifyHtmlCSharpCodeGenerator(incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
+                }
+                if (incomingCodeGenerator is VBRazorCodeGenerator)
+                {
+                    return new MinifyHtmlVBCodeGenerator(incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
+                }
             }
             return base.DecorateCodeGenerator(incomingCodeGenerator);
         }
