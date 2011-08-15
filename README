@@ -1,10 +1,15 @@
-To use the HTML Minification for Razor, you have to change your Web.config to replace the default ASP.NET MVC factory by the Meleze's one:
+To use the HTML Minification for Razor, you have to change your Views/Web.config to replace the default ASP.NET MVC factory by the Meleze's one:
 
 <configuration>
   <system.web.webPages.razor>
-    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory,Meleze.Web.Razor" />
+    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory, Meleze.Web, Version=1.0.0.1, Culture=neutral, PublicKeyToken=0a868b5321967eda" />
   </system.web.webPages.razor>
 </configuration>
+
+Making this change in the Web.config may break Intelliscense in Visual Studio if it does not find the Meleze.Web dll.
+There are two solutions:
+1) You can setup the factory in Web.config.Release instead of the Web.config. The minification will be enabled only in release build.
+2) Otherwize, you can register the Meleze.Web dll in the GAC using "gacutil.exe -i Meleze.Web". The minification will work even in design mode.
 
 There is also a NuGet package to setup the Minifier automatically in your applications.
 
