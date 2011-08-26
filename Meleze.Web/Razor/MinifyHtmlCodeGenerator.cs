@@ -10,7 +10,7 @@ namespace Meleze.Web.Razor
     internal static class MinifyHtmlCodeGenerator
     {
         private static char[] _whiteSpaceSepartors = new char[] { '\n', '\r' };
-        private static string[] _commentsMarkers = new string[] { "{", "}", "function", "var", "[if" };
+        private static string[] _commentsMarkers = new string[] { "{", "}", "function", "var", "[if", "[endif" };
 
         public static string Minify(string content)
         {
