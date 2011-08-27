@@ -73,8 +73,10 @@
     <MakeDir Directories="tmp/lib/NET40" />
     <MakeDir Directories="tmp/content" />
     <MakeDir Directories="tmp/content/Views" />
-
+    <MakeDir Directories="tmp/App_Readme" />
+    
     <Copy SourceFiles="cestdumeleze.nuspec" DestinationFolder="tmp" />
+    <Copy SourceFiles="README" DestinationFiles="tmp/App_Readme/Meleze.Web.README.txt" />
     <!--<Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content/Views" />-->
     <Copy SourceFiles="Meleze.Web/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
 

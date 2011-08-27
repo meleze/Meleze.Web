@@ -2,10 +2,10 @@
 <package>
   <metadata>
     <id>Meleze.Web</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>Nicolas Moyère</authors>
     <description>Meleze.Web is a toolbox to optimize ASP.NET MVC 3.0 application. It provides HTML Minification of Razor views and caching of the returned pages.</description>
-    <projectUrl>http://cestdumeleze.net/</projectUrl>
+    <projectUrl>https://github.com/meleze/Meleze.Web</projectUrl>
     <licenseUrl>http://cestdumeleze.net/license.txt</licenseUrl>
     <tags>ASP.NET-MVC MVC Razor</tags>
   </metadata>
