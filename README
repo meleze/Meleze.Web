@@ -11,6 +11,20 @@ There are two solutions:
 1) You can setup the factory in Web.config.Release instead of the Web.config. The minification will be enabled only in release build.
 2) Otherwize, you can register the Meleze.Web dll in the GAC using "gacutil.exe -i Meleze.Web". The minification will work even in design mode.
 
+There are two versions of the DLL: one for ASP.NET MVC3 and another for ASP.NET MVC4. Make sur to use the correct version (it is displayed in the DLL description).
+
+The Minifier behavior can be configured in the application's root Web.config with some appSettings keys:
+
+<appSettings>
+  <add key="meleze-minifier:Aggressive" value="true"/>
+  <add key="meleze-minifier:Comments" value="true"/>
+  <add key="meleze-minifier:Javascript" value="true"/>
+</appSettings>
+
+meleze-minifier:Aggressive removes as much whitespace as possible. In some cases, you may have to change yours CSS to fix the page layout (as whitespace is not interpreted in a compatible way by all browsers).
+meleze-minifier:Comments removes all the HTML comments that are neither Javascript code or conditional comments.
+meleze-minifier:Javascript calls the Microsoft Ajax Minifier. The AjaxMin.dll must be in the application references for this option to work (otherwise, JS is kept as is).
+
 There is also a NuGet package to setup the Minifier automatically in your applications.
 
 You can find more details in http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/

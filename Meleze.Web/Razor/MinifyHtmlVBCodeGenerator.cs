@@ -6,26 +6,17 @@ namespace Meleze.Web.Razor
 {
     internal sealed class MinifyHtmlVBCodeGenerator : MvcVBRazorCodeGenerator
     {
-        public MinifyHtmlVBCodeGenerator(string className, string rootNamespaceName, string sourceFileName, RazorEngineHost host)
+        private MinifyHtmlCodeGenerator _generator;
+
+        public MinifyHtmlVBCodeGenerator(MinifyHtmlCodeGenerator generator, string className, string rootNamespaceName, string sourceFileName, RazorEngineHost host)
             : base(className, rootNamespaceName, sourceFileName, host)
         {
+            _generator = generator;
         }
 
         public override void VisitSpan(Span span)
         {
-            // We only minify the static text
-            var markupSpan = span as MarkupSpan;
-            if (markupSpan == null)
-            {
-                base.VisitSpan(span);
-                return;
-            }
-
-            var content = markupSpan.Content;
-
-            content = MinifyHtmlCodeGenerator.Minify(content);
-
-            span.Content = content;
+            _generator.VisitSpan(span);
             base.VisitSpan(span);
         }
     }

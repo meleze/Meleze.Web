@@ -8,22 +8,26 @@ namespace Meleze.Web.Razor
     /// </summary>
     public sealed class MinifyHtmlMvcWebPageRazorHost : MvcWebPageRazorHost
     {
-        public MinifyHtmlMvcWebPageRazorHost(string virtualPath, string physicalPath)
+        private MinifyHtmlMinifier _minifier;
+
+        internal MinifyHtmlMvcWebPageRazorHost(MinifyHtmlMinifier minifier, string virtualPath, string physicalPath)
             : base(virtualPath, physicalPath)
         {
+            _minifier = minifier;
         }
 
         public override RazorCodeGenerator DecorateCodeGenerator(RazorCodeGenerator incomingCodeGenerator)
         {
             if (!incomingCodeGenerator.Host.DesignTimeMode)
             {
+                var generator = new MinifyHtmlCodeGenerator(_minifier);
                 if (incomingCodeGenerator is CSharpRazorCodeGenerator)
                 {
-                    return new MinifyHtmlCSharpCodeGenerator(incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
+                    return new MinifyHtmlCSharpCodeGenerator(generator, incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
                 }
                 if (incomingCodeGenerator is VBRazorCodeGenerator)
                 {
-                    return new MinifyHtmlVBCodeGenerator(incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
+                    return new MinifyHtmlVBCodeGenerator(generator, incomingCodeGenerator.ClassName, incomingCodeGenerator.RootNamespaceName, incomingCodeGenerator.SourceFileName, incomingCodeGenerator.Host);
                 }
             }
             return base.DecorateCodeGenerator(incomingCodeGenerator);

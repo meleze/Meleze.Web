@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3C80880D-B77D-4DC6-8CB4-DFC7BFBBC5DA}</ProjectGuid>
+    <ProjectGuid>{B945894A-D8D0-4D9C-8E2D-BFC51F1A3C2E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Meleze.Web</RootNamespace>
@@ -40,28 +40,22 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mvc\AcceptButtonAttribute.cs" />
-    <Compile Include="Mvc\LastModifiedCacheAttribute.cs" />
-    <Compile Include="Mvc\LocalRenderer.cs" />
-    <Compile Include="Mvc\LocalRequestFilterAttribute.cs" />
-    <Compile Include="Mvc\TimestampedCacheAttribute.cs" />
+    <Compile Include="..\Meleze.Web\Razor\MinifyHtmlMinifier.cs">
+      <Link>Razor\MinifyHtmlMinifier.cs</Link>
+    </Compile>
+    <Compile Include="..\Meleze.Web\Razor\MinifyHtmlWebRazorHostFactory.cs">
+      <Link>Razor\MinifyHtmlWebRazorHostFactory.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Razor\MinifyHtmlWebRazorHostFactory3.cs" />
-    <Compile Include="Razor\MinifyHtmlMinifier.cs" />
-    <Compile Include="Razor\MinifyHtmlVBCodeGenerator.cs" />
-    <Compile Include="Razor\MinifyHtmlCodeGenerator.cs" />
-    <Compile Include="Razor\MinifyHtmlCSharpCodeGenerator.cs" />
     <Compile Include="Razor\MinifyHtmlMvcWebPageRazorHost.cs" />
-    <Compile Include="Razor\MinifyHtmlWebRazorHostFactory.cs" />
-    <Compile Include="Sprites\SpriteGenerator.cs" />
+    <Compile Include="Razor\MinifyHtmlParser.cs" />
+    <Compile Include="Razor\MinifyHtmlWebRazorHostFactory4.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MelezeGACKey.snk" />

@@ -64,6 +64,7 @@
 
   <Target Name="Dlls">
     <MSBuild Projects="Meleze.Web/Meleze.Web.csproj" Targets="Build" Properties="Configuration=$(Configuration);Platform=$(Platform);DefineConstants=$(DefineConstants)" />
+    <MSBuild Projects="Meleze.Web4/Meleze.Web4.csproj" Targets="Build" Properties="Configuration=$(Configuration);Platform=$(Platform);DefineConstants=$(DefineConstants)" />
   </Target>
   
   <Target Name="Package">
@@ -74,13 +75,19 @@
     <MakeDir Directories="tmp/content" />
     <MakeDir Directories="tmp/content/Views" />
     <MakeDir Directories="tmp/App_Readme" />
-    
-    <Copy SourceFiles="cestdumeleze.nuspec" DestinationFolder="tmp" />
-    <Copy SourceFiles="README" DestinationFiles="tmp/App_Readme/Meleze.Web.README.txt" />
-    <!--<Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content/Views" />-->
-    <Copy SourceFiles="Meleze.Web/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
 
+    <!--<Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content/Views" />-->
+
+    <Copy SourceFiles="cestdumeleze3.nuspec" DestinationFiles="tmp/cestdumeleze.nuspec" />
+    <Copy SourceFiles="README" DestinationFiles="tmp/App_Readme/Meleze.Web.README.txt" />
+    <Copy SourceFiles="Meleze.Web/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
     <Exec Command="&quot;C:\Projects\Tools\NuGet.exe&quot; pack tmp\cestdumeleze.nuspec" />
+
+    <Copy SourceFiles="cestdumeleze4.nuspec" DestinationFiles="tmp/cestdumeleze.nuspec" />
+    <Copy SourceFiles="web.config.transform" DestinationFolder="tmp/content" />
+    <Copy SourceFiles="Meleze.Web4/bin/$(Configuration)/Meleze.Web.dll" DestinationFolder="tmp/lib/NET40" />
+    <Exec Command="&quot;C:\Projects\Tools\NuGet.exe&quot; pack tmp\cestdumeleze.nuspec" />
+
   </Target>
 
   <Target Name="Build" DependsOnTargets="Dlls;Package">

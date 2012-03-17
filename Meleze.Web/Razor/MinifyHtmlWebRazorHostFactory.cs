@@ -1,5 +1,7 @@
-﻿using System.Web.Mvc;
-using System.Web.WebPages.Razor;
+﻿using System;
+using System.Configuration;
+using System.Reflection;
+using System.Web.Mvc;
 
 namespace Meleze.Web.Razor
 {
@@ -9,16 +11,58 @@ namespace Meleze.Web.Razor
     /// It is executed when Razor generate the code for a page, just before the compilation.
     /// => There is a small performance penalty when the page compiles and a small optimization at execution.
     /// </summary>
-    public sealed class MinifyHtmlWebRazorHostFactory : MvcWebRazorHostFactory
+    public sealed partial class MinifyHtmlWebRazorHostFactory : MvcWebRazorHostFactory
     {
-        public override WebPageRazorHost CreateHost(string virtualPath, string physicalPath)
+        private MinifyHtmlMinifier _minifier;
+
+        public MinifyHtmlWebRazorHostFactory()
         {
-            WebPageRazorHost host = base.CreateHost(virtualPath, physicalPath);
-            if ((host.IsSpecialPage) || (host.DesignTimeMode))
+            // Javascript minification
+
+            Func<string, string> minifyJS = null;
+            //minifyJS = delegate(string code)
+            //{
+            //    var sc = new Microsoft.Ajax.Utilities.ScriptCruncher();
+            //    var scsettings = new Microsoft.Ajax.Utilities.CodeSettings() { LocalRenaming = Microsoft.Ajax.Utilities.LocalRenaming.KeepLocalizationVars };
+            //    var minifiedCode = sc.Crunch(code, scsettings);
+            //    return minifiedCode;
+            //};
+
+            // We initialize the JS minification by reflexion to remove a DLL dependency
+            try
             {
-                return host;
+                var ajaxmin = Assembly.Load("ajaxmin");
+                if (ajaxmin != null)
+                {
+                    var scriptCruncherType = ajaxmin.GetType("Microsoft.Ajax.Utilities.ScriptCruncher");
+                    var codeSettingsType = ajaxmin.GetType("Microsoft.Ajax.Utilities.CodeSettings");
+                    var localRenamingProperty = codeSettingsType.GetProperty("LocalRenaming");
+                    var crunchMethod = scriptCruncherType.GetMethod("Crunch", new Type[] { typeof(string), codeSettingsType });
+
+                    var sc = scriptCruncherType.GetConstructor(Type.EmptyTypes).Invoke(null);
+                    var scsettings = codeSettingsType.GetConstructor(Type.EmptyTypes).Invoke(null);
+                    localRenamingProperty.SetValue(scsettings, 1, null);
+
+                    minifyJS = delegate(string code)
+                    {
+                        var minifiedCode = (string)crunchMethod.Invoke(sc, new object[] { code, scsettings });
+                        return minifiedCode;
+                    };
+                }
             }
-            return new MinifyHtmlMvcWebPageRazorHost(virtualPath, physicalPath);
+            catch
+            {
+            }
+
+            var confAggressive = ConfigurationManager.AppSettings["meleze-minifier:Aggressive"];
+            var confComments = ConfigurationManager.AppSettings["meleze-minifier:Comments"];
+            var confJavascript = ConfigurationManager.AppSettings["meleze-minifier:Javascript"];
+
+            _minifier = new MinifyHtmlMinifier();
+            _minifier.MinifyJS = minifyJS;
+            _minifier.Aggressive = confAggressive == null || confAggressive.ToLower() == "true";
+            _minifier.Comments = confComments == null || confComments.ToLower() == "true";
+            _minifier.Javascript = confJavascript == null || confJavascript.ToLower() == "true";
         }
     }
 }

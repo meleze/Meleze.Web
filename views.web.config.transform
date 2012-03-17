@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <system.web.webPages.razor>
+    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory,Meleze.Web" />
+  </system.web.webPages.razor>
+</configuration>

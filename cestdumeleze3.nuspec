@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package>
+  <metadata>
+    <id>Meleze.Web</id>
+    <version>1.3.0</version>
+    <authors>Nicolas Moyère</authors>
+    <description>
+      Meleze.Web is a toolbox to optimize ASP.NET MVC 3.0 and MVC 4.0 applications.
+      It provides HTML and JS minification of Razor views and caching of the returned pages.
+
+      The package version 1.4.x targets ASP.NET MVC 4.0. Use version 1.3.x for MVC 3.0.
+    </description>
+    <projectUrl>https://github.com/meleze/Meleze.Web</projectUrl>
+    <licenseUrl>http://cestdumeleze.net/license.txt</licenseUrl>
+    <tags>ASP.NET-MVC MVC MVC3 MVC4 Razor HTML compression minification minify javascript js</tags>
+  </metadata>
+</package>

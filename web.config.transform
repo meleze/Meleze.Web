@@ -1,6 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-  <system.web.webPages.razor>
-    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory,Meleze.Web.Razor" />
-  </system.web.webPages.razor>
+  <appSettings>
+    <add key="meleze-minifier:Aggressive" value="true"/>
+    <add key="meleze-minifier:Comments" value="true"/>
+    <add key="meleze-minifier:Javascript" value="true"/>
+  </appSettings>
 </configuration>
