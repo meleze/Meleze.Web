@@ -70,6 +70,13 @@ namespace Meleze.Web.Razor
                 content = MinifyComments(content, builder);
             }
 
+            if (_javascript && (_minifyJS != null))
+            {
+                // JS is minified before the HTML to still have the end of lines
+                // when analysing the JS (which is needed to take // comments into account correctly)
+                content = MinifyJavascript(content, builder);
+            }
+
             if (_aggressive)
             {
                 content = MinifyAggressivelyHTML(content, builder, previousTokenEndsWithBlockElement);
@@ -77,11 +84,6 @@ namespace Meleze.Web.Razor
             else
             {
                 content = MinifySafelyHTML(content, builder, previousIsWhiteSpace);
-            }
-
-            if (_javascript && (_minifyJS != null))
-            {
-                content = MinifyJavascript(content, builder);
             }
 
             return content;
@@ -187,7 +189,7 @@ namespace Meleze.Web.Razor
                     builder.Append(' ');
                 }
                 builder.Append(token);
-                previousTokenEndsWithBlockElement = EndsWithBlockElement(token);
+                previousTokenEndsWithBlockElement = EndsWithBlockElement(tokens, i);
             }
             if (!previousTokenEndsWithBlockElement && char.IsWhiteSpace(content[content.Length - 1]))
             {
@@ -207,6 +209,25 @@ namespace Meleze.Web.Razor
                 return false;
             }
             var istart = content.LastIndexOf('<');
+            if (istart < 0)
+            {
+                return false;
+            }
+            return StartsWithBlockElement(content.Substring(istart));
+        }
+        private static bool EndsWithBlockElement(string[] tokens, int i)
+        {
+            var content = tokens[i];
+            if (content[content.Length - 1] != '>')
+            {
+                return false;
+            }
+            int istart;
+            for (istart = -1; istart < 0 && i >= 0; i--)
+            {
+                content = tokens[i];
+                istart = content.LastIndexOf('<');
+            }
             if (istart < 0)
             {
                 return false;
