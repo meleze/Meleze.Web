@@ -165,6 +165,11 @@ namespace Meleze.Web.Razor
             _other.ParseBlock();
         }
 
+        public override void ParseSection(System.Tuple<string, string> nestingSequences, bool caseSensitive)
+        {
+            _other.ParseSection(nestingSequences, caseSensitive);
+        }
+
         #endregion
     }
 }
