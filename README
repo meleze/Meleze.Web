@@ -2,16 +2,19 @@ To use the HTML Minification for Razor, you have to change your Views/Web.config
 
 <configuration>
   <system.web.webPages.razor>
-    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory, Meleze.Web, Version=1.0.0.2, Culture=neutral, PublicKeyToken=0a868b5321967eda" />
+    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory, Meleze.Web, Version=1.4.0.3, Culture=neutral, PublicKeyToken=0a868b5321967eda" />
   </system.web.webPages.razor>
 </configuration>
+
+For ASP.NET MVC 3.0, use the 1.3 version of Meleze:
+    <host factoryType="Meleze.Web.Razor.MinifyHtmlWebRazorHostFactory, Meleze.Web, Version=1.3.0.3, Culture=neutral, PublicKeyToken=0a868b5321967eda" />
+
+There are two versions of the DLL: one for ASP.NET MVC3 and another for ASP.NET MVC4. Make sur to use the correct version (it is displayed in the DLL description).
 
 Making this change in the Web.config may break Intelliscense in Visual Studio if it does not find the Meleze.Web dll.
 There are two solutions:
 1) You can setup the factory in Web.config.Release instead of the Web.config. The minification will be enabled only in release build.
 2) Otherwize, you can register the Meleze.Web dll in the GAC using "gacutil.exe -i Meleze.Web". The minification will work even in design mode.
-
-There are two versions of the DLL: one for ASP.NET MVC3 and another for ASP.NET MVC4. Make sur to use the correct version (it is displayed in the DLL description).
 
 The Minifier behavior can be configured in the application's root Web.config with some appSettings keys:
 
@@ -19,13 +22,19 @@ The Minifier behavior can be configured in the application's root Web.config wit
   <add key="meleze-minifier:Aggressive" value="true"/>
   <add key="meleze-minifier:Comments" value="true"/>
   <add key="meleze-minifier:Javascript" value="true"/>
+  <add key="meleze-minifier:CSS" value="true"/>
 </appSettings>
 
 meleze-minifier:Aggressive removes as much whitespace as possible. In some cases, you may have to change yours CSS to fix the page layout (as whitespace is not interpreted in a compatible way by all browsers).
 meleze-minifier:Comments removes all the HTML comments that are neither Javascript code or conditional comments.
 meleze-minifier:Javascript calls the Microsoft Ajax Minifier. The AjaxMin.dll must be in the application references for this option to work (otherwise, JS is kept as is).
+meleze-minifier:CSS also calls the Microsoft Ajax Minifier to minimize the inline styles.
 
 There is also a NuGet package to setup the Minifier automatically in your applications.
 
 You can find more details in http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/
 
+RELEASE NOTES:
+- 1.4.3 and 1.3.3 (4/24/2012)
+    - Fix bug when inline Javascript contains // comments and that the Javascript minifier is not enabled.
+    - Minify the inline CSS with the Microsoft Ajax Minifier (like for the inline Javascript).

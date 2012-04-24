@@ -4,5 +4,6 @@
     <add key="meleze-minifier:Aggressive" value="true"/>
     <add key="meleze-minifier:Comments" value="true"/>
     <add key="meleze-minifier:Javascript" value="true"/>
+    <add key="meleze-minifier:CSS" value="true"/>
   </appSettings>
 </configuration>

@@ -36,14 +36,18 @@ namespace Meleze.Web.Razor
         }
 
         private static Func<string, string> _minifyJS;
+        private static Func<string, string> _minifyCSS;
         private bool _comments = true;
         private bool _aggressive = true;
         private bool _javascript = true;
+        private bool _css = true;
 
         public Func<string, string> MinifyJS { set { _minifyJS = value; } }
+        public Func<string, string> MinifyCSS { set { _minifyCSS = value; } }
         public bool Comments { set { _comments = value; } }
         public bool Aggressive { set { _aggressive = value; } }
         public bool Javascript { set { _javascript = value; } }
+        public bool CSS { set { _css = value; } }
 
         public void AnalyseContent(string content, ref bool previousIsWhiteSpace, ref bool previousTokenEndsWithBlockElement)
         {
@@ -75,6 +79,15 @@ namespace Meleze.Web.Razor
                 // JS is minified before the HTML to still have the end of lines
                 // when analysing the JS (which is needed to take // comments into account correctly)
                 content = MinifyJavascript(content, builder);
+            }
+            else
+            {
+                content = MinifyJavascriptComments(content, builder);
+            }
+
+            if (_css && (_minifyCSS != null))
+            {
+                content = MinifyInlineCSS(content, builder);
             }
 
             if (_aggressive)
@@ -285,5 +298,111 @@ namespace Meleze.Web.Razor
             }
             return content;
         }
+
+        /// <summary>
+        /// Removes the single line comments from the Javascript code.
+        /// (because when line returns are minimized, these comments commant the whole script).
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        private static string MinifyJavascriptComments(string content, StringBuilder builder)
+        {
+            builder.Clear();
+            var iscriptstart = content.IndexOf("<script");
+            while (iscriptstart >= 0)
+            {
+                var iscriptautoend = content.IndexOf("/>", iscriptstart + 7);
+                var iscriptend = content.IndexOf("</script>", iscriptstart + 7);
+                if ((iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
+                {
+                    break;
+                }
+
+                // We have some javascript code inside the tag
+                // => we can ask a JS minifier to simplify it
+                var istartcode = content.IndexOf('>', iscriptstart) + 1;
+                var iendcode = iscriptend;
+                var code = content.Substring(istartcode, iendcode - istartcode);
+                builder.Append(content, 0, istartcode);
+
+                if (!string.IsNullOrWhiteSpace(code))
+                {
+                    // We remove all // comments that cause problems when minifying the HTML later
+                    var lines = code.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        var minifiedLine = line;
+                        int icomment = line.IndexOf("//");
+                        if (icomment >= 0)
+                        {
+                            minifiedLine = line.Substring(0, icomment);
+                        }
+                        builder.AppendLine(minifiedLine);
+                    }
+                }
+
+                iscriptstart = builder.Length;
+
+                builder.Append(content, iscriptend, content.Length - iscriptend);
+                content = builder.ToString();
+                builder.Clear();
+
+                iscriptstart = content.IndexOf("<script", iscriptstart);
+            }
+            return content;
+        }
+
+        /// <summary>
+        /// Uses an external CSS minifier to minimize inline CSS code.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        private static string MinifyInlineCSS(string content, StringBuilder builder)
+        {
+            builder.Clear();
+            var iscriptstart = content.IndexOf("<style");
+            while (iscriptstart >= 0)
+            {
+                var iscriptautoend = content.IndexOf("/>", iscriptstart + 6);
+                var iscriptend = content.IndexOf("</style>", iscriptstart + 6);
+                if ((iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
+                {
+                    break;
+                }
+
+                // We have some CSS code inside the tag
+                // => we can ask a CSS minifier to simplify it
+                var istartcode = content.IndexOf('>', iscriptstart) + 1;
+                var iendcode = iscriptend;
+                var code = content.Substring(istartcode, iendcode - istartcode);
+                builder.Append(content, 0, istartcode);
+
+                if (!string.IsNullOrWhiteSpace(code))
+                {
+                    // We call the Microsoft JS minifier by reflexion to cut the dependency.
+                    var minifiedCode = code;
+                    try
+                    {
+                        minifiedCode = _minifyCSS(code);
+                    }
+                    catch
+                    {
+                    }
+                    builder.Append(minifiedCode);
+                }
+
+                iscriptstart = builder.Length;
+
+                builder.Append(content, iscriptend, content.Length - iscriptend);
+                content = builder.ToString();
+                builder.Clear();
+
+                iscriptstart = content.IndexOf("<style", iscriptstart);
+            }
+            return content;
+        }
+
     }
 }

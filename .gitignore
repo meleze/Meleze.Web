@@ -29,3 +29,6 @@ obj/
 tmp*/
 *.swp
 Meleze.Web.*.nupkg
+MVC3*/
+MVC4*/
+packages*/
