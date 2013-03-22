@@ -23,16 +23,16 @@ namespace Meleze.Web.Razor
             Func<string, string> minifyCSS = null;
             //minifyJS = delegate(string code)
             //{
-            //    var sc = new Microsoft.Ajax.Utilities.ScriptCruncher();
+            //    var min = new Microsoft.Ajax.Utilities.Minifier();
             //    var scsettings = new Microsoft.Ajax.Utilities.CodeSettings() { LocalRenaming = Microsoft.Ajax.Utilities.LocalRenaming.KeepLocalizationVars };
-            //    var minifiedCode = sc.Crunch(code, scsettings);
+            //    var minifiedCode = min.MinifyJavaScript(code, scsettings);
             //    return minifiedCode;
             //};
             //minifyCSS = delegate(string code)
             //{
-            //    var sc = new Microsoft.Ajax.Utilities.ScriptCruncher();
+            //    var min = new Microsoft.Ajax.Utilities.Minifier();
             //    var scsettings = new Microsoft.Ajax.Utilities.CssSettings() { CommentMode = Microsoft.Ajax.Utilities.CssComment.Hacks };
-            //    var minifiedCode = sc.MinifyStyleSheet(code, scsettings);
+            //    var minifiedCode = min.MinifyStyleSheet(code, scsettings);
             //    return minifiedCode;
             //};
 
@@ -42,34 +42,35 @@ namespace Meleze.Web.Razor
                 var ajaxmin = Assembly.Load("ajaxmin");
                 if (ajaxmin != null)
                 {
-                    var scriptCruncherType = ajaxmin.GetType("Microsoft.Ajax.Utilities.ScriptCruncher");
+                    var minifierType = ajaxmin.GetType("Microsoft.Ajax.Utilities.Minifier");
 
                     // JS
                     var codeSettingsType = ajaxmin.GetType("Microsoft.Ajax.Utilities.CodeSettings");
                     var localRenamingProperty = codeSettingsType.GetProperty("LocalRenaming");
-                    var crunchMethod = scriptCruncherType.GetMethod("Crunch", new Type[] { typeof(string), codeSettingsType });
+                    var minifyJavaScriptMethod = minifierType.GetMethod("MinifyJavaScript", new Type[] { typeof(string), codeSettingsType });
 
-                    var sc = scriptCruncherType.GetConstructor(Type.EmptyTypes).Invoke(null);
+                    var min = minifierType.GetConstructor(Type.EmptyTypes).Invoke(null);
+                    
                     var scsettings = codeSettingsType.GetConstructor(Type.EmptyTypes).Invoke(null);
                     localRenamingProperty.SetValue(scsettings, 1, null);
 
                     minifyJS = delegate(string code)
                     {
-                        var minifiedCode = (string)crunchMethod.Invoke(sc, new object[] { code, scsettings });
+                        var minifiedCode = (string)minifyJavaScriptMethod.Invoke(min, new object[] { code, scsettings });
                         return minifiedCode;
                     };
 
                     // CSS
                     var cssSettingsType = ajaxmin.GetType("Microsoft.Ajax.Utilities.CssSettings");
                     var commentModeProperty = cssSettingsType.GetProperty("CommentMode");
-                    var minifyStyleSheetMethod = scriptCruncherType.GetMethod("MinifyStyleSheet", new Type[] { typeof(string), cssSettingsType });
+                    var minifyStyleSheetMethod = minifierType.GetMethod("MinifyStyleSheet", new Type[] { typeof(string), cssSettingsType });
 
                     var scsettings2 = cssSettingsType.GetConstructor(Type.EmptyTypes).Invoke(null);
                     commentModeProperty.SetValue(scsettings2, 2, null);
 
                     minifyCSS = delegate(string code)
                     {
-                        var minifiedCode = (string)minifyStyleSheetMethod.Invoke(sc, new object[] { code, scsettings2 });
+                        var minifiedCode = (string)minifyStyleSheetMethod.Invoke(min, new object[] { code, scsettings2 });
                         return minifiedCode;
                     };
                 }
