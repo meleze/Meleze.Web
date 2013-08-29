@@ -49,7 +49,7 @@ namespace Meleze.Web.Razor
         public bool Javascript { set { _javascript = value; } }
         public bool CSS { set { _css = value; } }
 
-        public void AnalyseContent(string content, ref bool previousIsWhiteSpace, ref bool previousTokenEndsWithBlockElement)
+        public void AnalyseContent(string content, ref bool previousIsWhiteSpace, ref bool previousTokenEndsWithBlockElement, ref bool insideScript)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -58,9 +58,16 @@ namespace Meleze.Web.Razor
 
             previousIsWhiteSpace = char.IsWhiteSpace(content[content.Length - 1]);
             previousTokenEndsWithBlockElement = EndsWithBlockElement(content);
+
+            var iscriptstart = content.LastIndexOf("<script");
+            var iscriptend = content.LastIndexOf("</script>");
+            if (!insideScript || (iscriptend >= 0))
+            {
+                insideScript = iscriptstart >= 0 && iscriptstart >= iscriptend;
+            }
         }
 
-        public string Minify(string content, bool previousIsWhiteSpace, bool previousTokenEndsWithBlockElement)
+        public string Minify(string content, bool previousIsWhiteSpace, bool previousTokenEndsWithBlockElement, bool insideScript)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -78,11 +85,11 @@ namespace Meleze.Web.Razor
             {
                 // JS is minified before the HTML to still have the end of lines
                 // when analysing the JS (which is needed to take // comments into account correctly)
-                content = MinifyJavascript(content, builder);
+                content = MinifyJavascript(content, builder, insideScript);
             }
             else
             {
-                content = MinifyJavascriptComments(content, builder);
+                content = MinifyJavascriptComments(content, builder, insideScript);
             }
 
             if (_css && (_minifyCSS != null))
@@ -254,17 +261,18 @@ namespace Meleze.Web.Razor
         /// <param name="content"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        private static string MinifyJavascript(string content, StringBuilder builder)
+        private static string MinifyJavascript(string content, StringBuilder builder, bool insideScript)
         {
             builder.Clear();
-            var iscriptstart = content.IndexOf("<script");
+            var iscriptstart = insideScript ? 0 : content.IndexOf("<script");
             while (iscriptstart >= 0)
             {
                 var iscriptautoend = content.IndexOf("/>", iscriptstart + 7);
                 var iscriptend = content.IndexOf("</script>", iscriptstart + 7);
-                if ((iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
+                if ((insideScript && iscriptstart == 0) || (iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
                 {
-                    break;
+                    content = MinifyJavascriptComments(content, builder, (insideScript && iscriptstart == 0), ref iscriptstart);
+                    goto NEXT;
                 }
 
                 // We have some javascript code inside the tag
@@ -276,7 +284,7 @@ namespace Meleze.Web.Razor
 
                 if (!string.IsNullOrWhiteSpace(code))
                 {
-                    // We call the Microsoft JS minifier by reflexion to cut the dependency.
+                    // We call the JS minifier by reflexion to cut the dependency.
                     var minifiedCode = code;
                     try
                     {
@@ -293,7 +301,7 @@ namespace Meleze.Web.Razor
                 builder.Append(content, iscriptend, content.Length - iscriptend);
                 content = builder.ToString();
                 builder.Clear();
-
+            NEXT:
                 iscriptstart = content.IndexOf("<script", iscriptstart);
             }
             return content;
@@ -305,51 +313,58 @@ namespace Meleze.Web.Razor
         /// </summary>
         /// <param name="content"></param>
         /// <param name="builder"></param>
+        /// <param name="insideScript"></param>
         /// <returns></returns>
-        private static string MinifyJavascriptComments(string content, StringBuilder builder)
+        private static string MinifyJavascriptComments(string content, StringBuilder builder, bool insideScript)
         {
             builder.Clear();
-            var iscriptstart = content.IndexOf("<script");
+            var iscriptstart = insideScript ? 0 : content.IndexOf("<script");
             while (iscriptstart >= 0)
             {
-                var iscriptautoend = content.IndexOf("/>", iscriptstart + 7);
-                var iscriptend = content.IndexOf("</script>", iscriptstart + 7);
-                if ((iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
-                {
-                    break;
-                }
-
-                // We have some javascript code inside the tag
-                // => we can ask a JS minifier to simplify it
-                var istartcode = content.IndexOf('>', iscriptstart) + 1;
-                var iendcode = iscriptend;
-                var code = content.Substring(istartcode, iendcode - istartcode);
-                builder.Append(content, 0, istartcode);
-
-                if (!string.IsNullOrWhiteSpace(code))
-                {
-                    // We remove all // comments that cause problems when minifying the HTML later
-                    var lines = code.Split('\n');
-                    foreach (var line in lines)
-                    {
-                        var minifiedLine = line;
-                        int icomment = line.IndexOf("//");
-                        if (icomment >= 0)
-                        {
-                            minifiedLine = line.Substring(0, icomment);
-                        }
-                        builder.AppendLine(minifiedLine);
-                    }
-                }
-
-                iscriptstart = builder.Length;
-
-                builder.Append(content, iscriptend, content.Length - iscriptend);
-                content = builder.ToString();
-                builder.Clear();
-
+                content = MinifyJavascriptComments(content, builder, insideScript, ref iscriptstart);
                 iscriptstart = content.IndexOf("<script", iscriptstart);
             }
+            return content;
+        }
+        private static string MinifyJavascriptComments(string content, StringBuilder builder, bool insideScript, ref int iscriptstart)
+        {
+            var iscriptautoend = content.IndexOf("/>", iscriptstart + 7);
+            var iscriptend = content.IndexOf("</script>", iscriptstart + 7);
+            if ((iscriptend < 0) || ((iscriptautoend > 0) && (iscriptautoend < iscriptend)))
+            {
+                iscriptend = content.Length;
+            }
+
+            // We have some javascript code inside the tag
+            // => we can ask a JS minifier to simplify it
+            var istartcode = (insideScript && iscriptstart == 0) ? 0 : content.IndexOf('>', iscriptstart) + 1;
+            var iendcode = iscriptend;
+            var code = content.Substring(istartcode, iendcode - istartcode);
+            builder.Append(content, 0, istartcode);
+
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                // We remove all // comments that cause problems when minifying the HTML later
+                var lines = code.Split('\n');
+                foreach (var line in lines)
+                {
+                    var minifiedLine = line;
+                    int icomment = line.IndexOf("//");
+                    if (icomment >= 0)
+                    {
+                        minifiedLine = line.Substring(0, icomment);
+                    }
+                    builder.Append(minifiedLine);
+                    builder.Append('\n');
+                }
+            }
+
+            iscriptstart = builder.Length;
+
+            builder.Append(content, iscriptend, content.Length - iscriptend);
+            content = builder.ToString();
+            builder.Clear();
+
             return content;
         }
 

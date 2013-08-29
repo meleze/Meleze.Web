@@ -70,6 +70,7 @@ namespace Meleze.Web.Razor
             var codeGenerator = new MarkupCodeGenerator();
             var previousIsWhiteSpace = true;
             var previousTokenEndsWithBlockElement = true;
+            var insideScript = false;
 
             for (int i = 0; i < block.Children.Count; i++)
             {
@@ -108,9 +109,9 @@ namespace Meleze.Web.Razor
                     continue;
                 }
 
-                content = _minifier.Minify(content, previousIsWhiteSpace, previousTokenEndsWithBlockElement);
+                content = _minifier.Minify(content, previousIsWhiteSpace, previousTokenEndsWithBlockElement, insideScript);
 
-                _minifier.AnalyseContent(content, ref previousIsWhiteSpace, ref previousTokenEndsWithBlockElement);
+                _minifier.AnalyseContent(content, ref previousIsWhiteSpace, ref previousTokenEndsWithBlockElement, ref insideScript);
 
                 // We replace the content with the minified markup
                 // and then let the CSharp/VB generator do their jobs.
