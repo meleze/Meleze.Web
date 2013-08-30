@@ -99,7 +99,7 @@ namespace Meleze.Web.Razor
 
             if (_aggressive)
             {
-                content = MinifyAggressivelyHTML(content, builder, previousTokenEndsWithBlockElement);
+                content = MinifyAggressivelyHTML(content, builder, previousTokenEndsWithBlockElement, previousIsWhiteSpace, insideScript);
             }
             else
             {
@@ -155,6 +155,14 @@ namespace Meleze.Web.Razor
         private static string MinifySafelyHTML(string content, StringBuilder builder, bool previousIsWhiteSpace)
         {
             builder.Clear();
+            MinifySafelyHTMLBlock(content, builder, previousIsWhiteSpace);
+
+            content = builder.ToString();
+            return content;
+        }
+
+        private static bool MinifySafelyHTMLBlock(string content, StringBuilder builder, bool previousIsWhiteSpace)
+        {
             var lines = content.Split(_lineSeparators, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < lines.Length; i++)
             {
@@ -182,9 +190,7 @@ namespace Meleze.Web.Razor
                 }
                 previousIsWhiteSpace = hasEndOfLine || endsWithWhiteSpace;
             }
-
-            content = builder.ToString();
-            return content;
+            return previousIsWhiteSpace;
         }
 
         /// <summary>
@@ -195,26 +201,73 @@ namespace Meleze.Web.Razor
         /// <param name="content"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        private static string MinifyAggressivelyHTML(string content, StringBuilder builder, bool previousTokenEndsWithBlockElement)
+        private static string MinifyAggressivelyHTML(string content, StringBuilder builder, bool previousTokenEndsWithBlockElement, bool previousIsWhiteSpace, bool insideScript)
         {
             builder.Clear();
-            var tokens = content.Split(_whiteSpaceSeparators, StringSplitOptions.RemoveEmptyEntries);
-            previousTokenEndsWithBlockElement |= (content.Length > 0) && !char.IsWhiteSpace(content[0]);
-            for (int i = 0; i < tokens.Length; i++)
+
+            var istart = 0;
+            while (istart < content.Length)
             {
-                var token = tokens[i];
-                if (!previousTokenEndsWithBlockElement && !StartsWithBlockElement(token))
+                var iscriptstart = istart == 0 && insideScript ? 0 : content.IndexOf("<script", istart);
+                var iscriptend = content.IndexOf("</script>", istart);
+                if ((istart > 0) && (!insideScript || (iscriptend >= 0)))
                 {
-                    // We have to keep a white space between 2 texts or an inline element and a text or between 2 inline elements
-                    builder.Append(' ');
+                    insideScript = iscriptstart >= 0 && iscriptstart >= iscriptend;
                 }
-                builder.Append(token);
-                previousTokenEndsWithBlockElement = EndsWithBlockElement(tokens, i);
+                if (insideScript && (iscriptend < 0))
+                {
+                    iscriptend = content.Length;
+                }
+                if (iscriptstart < 0)
+                {
+                    iscriptstart = content.Length;
+                }
+
+                if (insideScript || (iscriptstart == istart))
+                {
+                    if (iscriptend < content.Length)
+                    {
+                        iscriptend += "</script>".Length;
+                    }
+                    var jsContent = content.Substring(iscriptstart, iscriptend - iscriptstart);
+                    previousIsWhiteSpace = MinifySafelyHTMLBlock(jsContent, builder, previousIsWhiteSpace);
+                    istart = iscriptend;
+                    insideScript = false;
+                }
+                else
+                {
+                    var htmlContent = content.Substring(istart, iscriptstart - istart);
+
+                    var tokens = htmlContent.Split(_whiteSpaceSeparators, StringSplitOptions.RemoveEmptyEntries);
+                    previousTokenEndsWithBlockElement |= (htmlContent.Length > 0) && !char.IsWhiteSpace(htmlContent[0]);
+                    previousIsWhiteSpace = false;
+                    for (int i = 0; i < tokens.Length; i++)
+                    {
+                        var token = tokens[i].Trim();
+                        if (string.IsNullOrEmpty(token))
+                        {
+                            continue;
+                        }
+                        if (!previousTokenEndsWithBlockElement && !StartsWithBlockElement(token))
+                        {
+                            // We have to keep a white space between 2 texts or an inline element and a text or between 2 inline elements
+                            builder.Append(' ');
+                        }
+
+                        builder.Append(token);
+
+                        previousTokenEndsWithBlockElement = EndsWithBlockElement(tokens, i);
+                    }
+                    if (!previousTokenEndsWithBlockElement && char.IsWhiteSpace(htmlContent[htmlContent.Length - 1]))
+                    {
+                        builder.Append(' ');
+                        previousIsWhiteSpace = true;
+                    }
+
+                    istart = iscriptstart;
+                }
             }
-            if (!previousTokenEndsWithBlockElement && char.IsWhiteSpace(content[content.Length - 1]))
-            {
-                builder.Append(' ');
-            }
+
             content = builder.ToString();
             return content;
         }
@@ -345,17 +398,28 @@ namespace Meleze.Web.Razor
             if (!string.IsNullOrWhiteSpace(code))
             {
                 // We remove all // comments that cause problems when minifying the HTML later
-                var lines = code.Split('\n');
-                foreach (var line in lines)
+                var lines = code.Split(_lineSeparators);
+                for (int i = 0; i < lines.Length; i++)
                 {
+                    var line = lines[i];
                     var minifiedLine = line;
                     int icomment = line.IndexOf("//");
                     if (icomment >= 0)
                     {
-                        minifiedLine = line.Substring(0, icomment);
+                        // As // can appear in URLs (for example), we check the comment is in code
+                        // by testing if the text before the // is the end of a JS block.
+                        if (IsJavascriptComment(line, icomment))
+                        {
+                            minifiedLine = line.Substring(0, icomment);
+                        }
                     }
                     builder.Append(minifiedLine);
-                    builder.Append('\n');
+
+                    var hasEndOfLine = (i < lines.Length - 1) || (_lineSeparators.Any(s => s == code[code.Length - 1]));
+                    if (hasEndOfLine)
+                    {
+                        builder.Append('\n');
+                    }
                 }
             }
 
@@ -366,6 +430,13 @@ namespace Meleze.Web.Razor
             builder.Clear();
 
             return content;
+        }
+
+        private static bool IsJavascriptComment(string line, int icomment)
+        {
+            var i = icomment - 1;
+            while ((i >= 0) && char.IsWhiteSpace(line[i])) i--;
+            return (i < 0) || (line[i] == ';' || line[i] == '{' || line[i] == '}');
         }
 
         /// <summary>

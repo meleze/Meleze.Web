@@ -34,9 +34,10 @@ namespace Meleze.Web.Razor
 
             var content = markupSpan.Content;
 
-            content = _minifier.Minify(content, _previousIsWhiteSpace, _previousTokenEndsWithBlockElement);
+            content = _minifier.Minify(content, _previousIsWhiteSpace, _previousTokenEndsWithBlockElement, false);
 
-            _minifier.AnalyseContent(content, ref _previousIsWhiteSpace, ref _previousTokenEndsWithBlockElement);
+            bool insideScript = false;
+            _minifier.AnalyseContent(content, ref _previousIsWhiteSpace, ref _previousTokenEndsWithBlockElement, ref insideScript);
 
             span.Content = content;
         }
