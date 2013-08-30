@@ -1,19 +1,24 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meleze.Web", "Meleze.Web\Meleze.Web.csproj", "{3C80880D-B77D-4DC6-8CB4-DFC7BFBBC5DA}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{091B2B14-DCD3-46E6-B92C-EF5D3F08BEA9}"
 	ProjectSection(SolutionItems) = preProject
 		build.proj = build.proj
 		cestdumeleze3.nuspec = cestdumeleze3.nuspec
 		cestdumeleze4.nuspec = cestdumeleze4.nuspec
+		license.txt = license.txt
 		README = README
 		views.web.config.transform = views.web.config.transform
 		web.config.transform = web.config.transform
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meleze.Web", "Meleze.Web\Meleze.Web.csproj", "{3C80880D-B77D-4DC6-8CB4-DFC7BFBBC5DA}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meleze.Web4", "Meleze.Web4\Meleze.Web4.csproj", "{B945894A-D8D0-4D9C-8E2D-BFC51F1A3C2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC4", "MVC4\MVC4.csproj", "{BE97EB9B-FB42-4B05-8BA4-40D384983114}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meleze.Web.Test", "Meleze.Web.Test\Meleze.Web.Test.csproj", "{14A94D5F-D5F3-4393-9A82-8CA87BA74E51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +34,14 @@ Global
 		{B945894A-D8D0-4D9C-8E2D-BFC51F1A3C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B945894A-D8D0-4D9C-8E2D-BFC51F1A3C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B945894A-D8D0-4D9C-8E2D-BFC51F1A3C2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE97EB9B-FB42-4B05-8BA4-40D384983114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE97EB9B-FB42-4B05-8BA4-40D384983114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE97EB9B-FB42-4B05-8BA4-40D384983114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE97EB9B-FB42-4B05-8BA4-40D384983114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14A94D5F-D5F3-4393-9A82-8CA87BA74E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14A94D5F-D5F3-4393-9A82-8CA87BA74E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14A94D5F-D5F3-4393-9A82-8CA87BA74E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14A94D5F-D5F3-4393-9A82-8CA87BA74E51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
