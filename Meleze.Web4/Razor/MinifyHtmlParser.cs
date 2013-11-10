@@ -82,6 +82,15 @@ namespace Meleze.Web.Razor
                     // => to make it work in all cases, we won't minifiy whitespace just after code.
                     previousIsWhiteSpace = false;
                     previousTokenEndsWithBlockElement = false;
+
+                    var section = node as Block;
+                    if ((section != null) && (section.Type == BlockType.Section))
+                    {
+                        // Sections are special as they force us to recurse the minification
+                        block.Children[i] = MinifySectionBlock(section);
+                        previousIsWhiteSpace = false;
+                        previousTokenEndsWithBlockElement = false;
+                    }
                     continue;
                 }
 
@@ -120,6 +129,32 @@ namespace Meleze.Web.Razor
                 builder.Accept(symbol);
                 span.ReplaceWith(builder);
             }
+        }
+
+        private Block MinifySectionBlock(Block block)
+        {
+            var builder = new BlockBuilder(block);
+
+            // In sections, we only change the Markup blocks
+            // as the others handle the section integration in the calling page.
+            for (int i = 0; i < builder.Children.Count; i++)
+            {
+                var node = builder.Children[i];
+                var markup = node as Block;
+                if ((markup == null) || (markup.Type != BlockType.Markup))
+                {
+                    continue;
+                }
+
+                var markupbuilder = new BlockBuilder(markup);
+                FlattenHTMLAttributes(markupbuilder);
+                MinifyMarkup(markupbuilder);
+                markup = new Block(markupbuilder);
+                builder.Children[i] = markup;
+            }
+
+            block = new Block(builder);
+            return block;
         }
 
         private sealed class MarkupSymbol : ISymbol
