@@ -34,7 +34,7 @@ namespace Meleze.Web.Razor
                         var bundleContextType = swo.GetType("System.Web.Optimization.BundleContext");
                         var bundleContextConstructor = bundleContextType.GetConstructor(new Type[] { typeof(HttpContextBase), bundleCollectionType, typeof(string) });
                         var bundleReponseType = swo.GetType("System.Web.Optimization.BundleResponse");
-                        var bundleReponseConstructor = bundleReponseType.GetConstructor(Type.EmptyTypes);
+                        var bundleReponseConstructor = bundleReponseType.GetConstructors()[0];
                         var bundleReponseContentProperty = bundleReponseType.GetProperty("Content");
                         var bundleTransformType = swo.GetType("System.Web.Optimization.IBundleTransform");
                         var bundleTransformProcessMethod = bundleTransformType.GetMethod("Process");
@@ -50,7 +50,7 @@ namespace Meleze.Web.Razor
 
                             minifyCSS = delegate(string code)
                             {
-                                var bundleReponse = bundleReponseConstructor.Invoke(null);
+                                var bundleReponse = bundleReponseConstructor.Invoke(new object[] { null, null });
                                 bundleReponseContentProperty.SetValue(bundleReponse, code, null);
 
                                 bundleTransformProcessMethod.Invoke(cssMinify, new object[] { bundleContext, bundleReponse });
@@ -66,7 +66,7 @@ namespace Meleze.Web.Razor
 
                             minifyJS = delegate(string code)
                             {
-                                var bundleReponse = bundleReponseConstructor.Invoke(null);
+                                var bundleReponse = bundleReponseConstructor.Invoke(new object[] { null, null });
                                 bundleReponseContentProperty.SetValue(bundleReponse, code, null);
 
                                 bundleTransformProcessMethod.Invoke(jsMinify, new object[] { bundleContext, bundleReponse });
