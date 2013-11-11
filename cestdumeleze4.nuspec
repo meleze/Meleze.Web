@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Meleze.Web</id>
-    <version>1.4.5</version>
+    <version>1.4.6</version>
     <authors>Nicolas Moyère</authors>
     <description>
       Meleze.Web is a toolbox to optimize ASP.NET MVC 3.0, MVC 4.0 and MVC 5.0 applications.

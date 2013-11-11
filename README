@@ -35,6 +35,10 @@ There is also a NuGet package to setup the Minifier automatically in your applic
 You can find more details in http://cestdumeleze.net/blog/2011/minifying-the-html-with-asp-net-mvc-and-razor/
 
 RELEASE NOTES:
+- 1.4.6 and 1.3.6 (11/11/2013)
+    - Fix integration with Microsoft AjaxMin (from SoonDead)
+    - Fix minification of URL starting with ~/
+
 - 1.4.5 and 1.3.5 (10/11/2013)
     - Fix integration with System.Web.Optimization
     - Add minification of the Razor sections
