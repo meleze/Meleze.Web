@@ -51,7 +51,7 @@ namespace Meleze.Web.Razor
             {
                 var node = block.Children[i];
                 var subblock = node as Block;
-                if ((subblock == null) || (!subblock.Children.All(c => c is Span && ((Span)c).Kind == SpanKind.Markup)))
+                if ((subblock == null) || (!subblock.Children.All(c => c is Span && ((Span)c).Kind == SpanKind.Markup && ((Span)c).Content.StartsWith("~/"))))
                 {
                     i++;
                     continue;
